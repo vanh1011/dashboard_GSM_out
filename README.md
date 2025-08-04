@@ -1,24 +1,32 @@
-# 📊 PVI-GSM Reconciliation Dashboard
+# 📊 PVI-GSM Dashboard System
 
-Dashboard phân tích và đối soát dữ liệu giao dịch giữa PVI và GSM với khả năng xử lý file CSV lớn (100MB+) hiệu quả.
+Hệ thống dashboard phân tích và đối soát dữ liệu giao dịch giữa PVI và GSM với khả năng xử lý file CSV lớn (100MB+) hiệu quả.
 
 ## 🚀 Tính năng chính
 
-### 🔄 Phân tích Đối soát
+### 🏠 **Dashboard Launcher** (`main_dashboard.py`)
+- Giao diện chọn dashboard chính
+- 2 dashboard riêng biệt: Reconciliation và Tài Xế
+- Thông tin tổng quan về hệ thống
+
+### 🔄 **Reconciliation Dashboard** (`dashboard.py`)
 - **Match**: Giao dịch khớp giữa GSM và PVI
 - **not_found_in_m**: Chỉ có ở PVI (không có GSM)  
 - **not_found_in_external**: Chỉ có ở GSM (không có PVI)
 - Thống kê tỷ lệ khớp và phân tích discrepancy
+- Phân tích INSURANCE_STATUS
+- Phân tích Business vs Non-Business orders
+- Phân tích Service Type (Ride vs Express)
+- Phân tích Amount theo Service Type
+- Drill-down analysis cho các status đặc biệt
 
-### 🛡️ Phân tích Bảo hiểm
-- Thống kê INSURANCE_STATUS
-- Phân bố theo trạng thái (completed, cancelled, pending, failed)
-- Biểu đồ trực quan
-
-### 🔍 Tìm kiếm Order ID
-- Tra cứu nhiều Order ID cùng lúc
-- Export kết quả ra CSV
-- Hiển thị chi tiết thông tin giao dịch
+### 🚗 **Tài Xế Dashboard** (`taixe_dashboard.py`)
+- Phân tích đơn tai nạn tài xế
+- Phân tích RECONCILE_STATUS cho tài xế
+- Biểu đồ phân bố trạng thái
+- Tìm kiếm Order ID tài xế
+- Xem dữ liệu thô tài xế
+- Thống kê chi tiết
 
 ### 📁 Quản lý File thông minh
 - **Logic ưu tiên**: Tự động chọn file `_2` nếu có
@@ -26,7 +34,7 @@ Dashboard phân tích và đối soát dữ liệu giao dịch giữa PVI và GS
 - **File patterns**:
   - `pvi_transaction_reconciled_YYYYMMDD.csv` (file gốc)
   - `pvi_transaction_reconciled_YYYYMMDD_2.csv` (file được ưu tiên)
-  - `pvi_transaction_reconciled_taixe_YYYYMMDD.csv`
+  - `pvi_transaction_reconciled_taixe_YYYYMMDD.csv` (file tài xế)
 
 ### ⚡ Hiệu suất cao
 - **Polars** cho xử lý file CSV lớn (>100MB)
@@ -37,8 +45,8 @@ Dashboard phân tích và đối soát dữ liệu giao dịch giữa PVI và GS
 
 ### 1. Clone project
 ```bash
-git clone <repository-url>
-cd dashboard-GSM
+git clone https://github.com/vanh1011/dashboard_GSM_out.git
+cd dashboard_GSM_out
 ```
 
 ### 2. Cài đặt dependencies
@@ -48,51 +56,55 @@ pip install -r requirements.txt
 
 ### 3. Chạy dashboard
 ```bash
-streamlit run dashboard.py
+# Chạy launcher chính
+streamlit run main_dashboard.py
+
+# Hoặc chạy trực tiếp từng dashboard
+streamlit run dashboard.py          # Reconciliation Dashboard
+streamlit run taixe_dashboard.py    # Tài Xế Dashboard
 ```
 
 Dashboard sẽ chạy tại: `http://localhost:8501`
 
 ## 📖 Hướng dẫn sử dụng
 
-### Bước 1: Cấu hình đường dẫn
+### Bước 1: Chọn Dashboard
+1. Chạy `main_dashboard.py`
+2. Chọn dashboard phù hợp:
+   - **🔄 Reconciliation Dashboard**: Phân tích giao dịch chính
+   - **🚗 Tài Xế Dashboard**: Phân tích đơn tai nạn tài xế
+
+### Bước 2: Cấu hình đường dẫn
 1. Mở sidebar bên trái
-2. Nhập đường dẫn dữ liệu (mặc định: `F:/powerbi/gsm_data/out`)
-3. Chọn năm cần phân tích
+2. Chọn năm cần phân tích (mặc định: 2025)
+3. Chọn tháng cần phân tích
 
-### Bước 2: Tải dữ liệu
+### Bước 3: Tải dữ liệu
 1. Click **"🔄 Tải danh sách ngày"**
-2. Chọn ngày cụ thể từ dropdown
-3. Click **"📈 Phân tích dữ liệu ngày này"**
+2. Chọn ngày cụ thể từ grid
+3. Dữ liệu sẽ tự động load
 
-### Bước 3: Phân tích
-Dashboard sẽ hiển thị 4 tab chính:
+### Bước 4: Phân tích
+Mỗi dashboard có các tab chuyên biệt:
 
-#### 🔄 Tab Đối soát
-- Thống kê tổng quan về reconcile status
-- Biểu đồ pie chart phân bố
-- Số liệu chi tiết với tỷ lệ phần trăm
+#### 🔄 Reconciliation Dashboard Tabs:
+- **🔄 Đối soát**: Phân tích RECONCILE_STATUS
+- **🛡️ Bảo hiểm**: Phân tích INSURANCE_STATUS, Business orders, Service types
+- **🔍 Tìm kiếm**: Tìm kiếm Order ID
+- **👁️ Dữ liệu thô**: Browse toàn bộ dữ liệu
 
-#### 🛡️ Tab Bảo hiểm  
-- Phân tích INSURANCE_STATUS
-- Biểu đồ bar chart
-- Bảng thống kê chi tiết
-
-#### 🔍 Tab Tìm kiếm
-- Nhập danh sách Order ID (mỗi ID một dòng)
-- Kết quả hiển thị trong bảng
-- Download CSV để backup
-
-#### 👁️ Tab Dữ liệu thô
-- Browse toàn bộ dữ liệu
-- Thông tin về các cột
-- Sample data với pagination
+#### 🚗 Tài Xế Dashboard Tabs:
+- **🚗 Phân tích Tài xế**: Phân tích dữ liệu tài xế
+- **🔍 Tìm kiếm**: Tìm kiếm Order ID tài xế
+- **👁️ Dữ liệu thô**: Xem dữ liệu thô tài xế
 
 ## 🏗️ Kiến trúc hệ thống
 
 ```
 dashboard-GSM/
-├── dashboard.py          # Main Streamlit app
+├── main_dashboard.py     # Dashboard launcher
+├── dashboard.py          # Reconciliation Dashboard
+├── taixe_dashboard.py    # Tài Xế Dashboard
 ├── csv_reader.py         # CSV reading & file management
 ├── data_analyzer.py      # Advanced data analysis
 ├── requirements.txt      # Python dependencies
@@ -105,6 +117,7 @@ dashboard-GSM/
 - Quản lý file CSV với logic ưu tiên
 - Xử lý dữ liệu lớn với Polars
 - Extract metadata từ file
+- Hỗ trợ cả file reconciled và taixe
 
 #### `DataAnalyzer` 
 - Phân tích reconcile patterns
@@ -112,8 +125,8 @@ dashboard-GSM/
 - Generate recommendations
 - Export báo cáo Excel
 
-#### `DashboardApp`
-- Giao diện Streamlit
+#### `DashboardApp` & `TaixeDashboardApp`
+- Giao diện Streamlit cho từng loại dashboard
 - Interactive widgets
 - Real-time visualization
 
@@ -136,12 +149,19 @@ def read_csv_polars(self, file_path: str, chunk_size: int = 50000):
 
 ## 📊 Ví dụ dữ liệu
 
-### Sample CSV structure:
+### Sample CSV structure (Reconciliation):
 ```csv
-ORDER_ID,MERCHANT,TOTAL_AMOUNT,ORDER_TIME,RECONCILE_STATUS,INSURANCE_STATUS
-01Z1ABCD123,MERCHANT_A,1000,2025-07-01 10:30:00,match,completed
-01Z2EFGH456,MERCHANT_B,2000,2025-07-01 11:45:00,not_found_in_m,cancelled
-01Z3IJKL789,MERCHANT_C,1500,2025-07-01 14:20:00,not_found_in_external,pending
+ORDER_ID,MERCHANT,TOTAL_AMOUNT,ORDER_TIME,RECONCILE_STATUS,INSURANCE_STATUS,IS_BUSINESS_ORDER,SERVICE_TYPE
+01Z1ABCD123,MERCHANT_A,1000,2025-07-01 10:30:00,match,completed,true,normal
+01Z2EFGH456,MERCHANT_B,2000,2025-07-01 11:45:00,not_found_in_m,cancelled,false,express
+01Z3IJKL789,MERCHANT_C,1500,2025-07-01 14:20:00,not_found_in_external,pending,true,normal
+```
+
+### Sample CSV structure (Tài Xế):
+```csv
+ORDER_ID,RECONCILE_STATUS,GSM_AMOUNT,MERCHANT_AMOUNT,RECONCILE_AMOUNT,GSM_STATUS,MERCHANT_STATUS
+01JZ2SWN3GYQQP8PH8ZT5GFEZ7,match,100,100,0,COMPLETED,COMPLETED
+01JZ2KBJRN9B8MJY2XT6A25NJ8,match,100,100,0,COMPLETED,COMPLETED
 ```
 
 ### Reconcile Status meanings:
@@ -194,6 +214,5 @@ MIT License - xem file LICENSE để biết thêm chi tiết.
 
 ## 📞 Liên hệ
 
-- **Developer**: Your Name
-- **Email**: your.email@example.com
-- **Project**: PVI-GSM Reconciliation Dashboard 
+- **Repository**: https://github.com/vanh1011/dashboard_GSM_out.git
+- **Project**: PVI-GSM Dashboard System

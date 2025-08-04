@@ -9,13 +9,15 @@ import os
 from csv_reader import CSVDataReader
 from typing import Dict, List
 
-# Cấu hình trang
-st.set_page_config(
-    page_title="PVI-GSM Reconciliation Dashboard",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# Cấu hình trang - chỉ set nếu chưa được set
+if 'page_config_set' not in st.session_state:
+    st.set_page_config(
+        page_title="PVI-GSM Reconciliation Dashboard",
+        page_icon="📊",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+    st.session_state.page_config_set = True
 
 # CSS cho giao diện đẹp hơn
 st.markdown("""
@@ -128,6 +130,12 @@ class DashboardApp:
     
     def render_header(self):
         """Render header của dashboard"""
+        # Nút quay lại launcher
+        if st.button("🏠 Quay lại Launcher", key="back_to_launcher"):
+            if 'selected_dashboard' in st.session_state:
+                del st.session_state.selected_dashboard
+            st.rerun()
+        
         st.markdown('<h1 class="main-header" style="color: #11111; font-size: 2rem; font-weight: 700;">📊 PVI-GSM Reconciliation Dashboard</h1>', 
                    unsafe_allow_html=True)
     
